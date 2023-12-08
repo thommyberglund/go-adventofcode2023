@@ -4,21 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
 
-type Game struct {
-	gameId int
-	red    int
-	green  int
-	blue   int
-}
-
 func main() {
 
-	var Games = []Game{}
-	gameSum := 0
+	inputSlice := make([][]string, 0)
+	numbers := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+	sum := 0
+
 	filePath := os.Args[1]
 	readFile, err := os.Open(filePath)
 
@@ -30,36 +26,52 @@ func main() {
 	fileScanner.Split(bufio.ScanLines)
 
 	for fileScanner.Scan() {
-		game := strings.TrimPrefix(fileScanner.Text(), "Game ")
-		round, _ := strconv.Atoi(game[:strings.IndexByte(game, ':')])
-		gameStruct := Game{round, 0, 0, 0}
-		mainString := strings.Split(game, ":")[1]
-		getSets := strings.Split(mainString, ";")
-		for _, v := range getSets {
-			m := make(map[string]int)
-			extractedSet := strings.Split(v, ",")
-			for _, k := range extractedSet {
-				mapping := strings.Split(strings.TrimSpace(k), " ")
-				m[mapping[1]], _ = strconv.Atoi(mapping[0])
-				if gameStruct.blue < m["blue"] {
-					gameStruct.blue = m["blue"]
+		splitToSlice := strings.Split(fileScanner.Text(), "")
+		inputSlice = append(inputSlice, [][]string{splitToSlice}...)
+	}
+	readFile.Close()
+
+	for i := 0; i < len(inputSlice); i++ {
+		current := ""
+		part := false
+		for j := 0; j < len(inputSlice[i]); j++ {
+			if slices.Contains(numbers, inputSlice[i][j]) {
+				current = current + inputSlice[i][j]
+
+				js := len(inputSlice) - 1
+				is := len(inputSlice[0]) - 1
+				if (i > 0 && j > 0 && inputSlice[i-1][j-1] != ".") ||
+					(i > 0 && inputSlice[i-1][j] != ".") ||
+					(i > 0 && j < js && inputSlice[i-1][j+1] != ".") ||
+
+					(j > 0 && inputSlice[i][j-1] != ".") && !slices.Contains(numbers, inputSlice[i][j-1]) ||
+					(j < js && inputSlice[i][j+1] != ".") && !slices.Contains(numbers, inputSlice[i][j+1]) ||
+
+					(i < is && j > 0 && inputSlice[i+1][j-1] != ".") ||
+					(i < is && inputSlice[i+1][j] != ".") ||
+					(i < is && j < js && inputSlice[i+1][j+1] != ".") {
+
+					part = true
 				}
-				if gameStruct.red < m["red"] {
-					gameStruct.red = m["red"]
+			} else {
+				if current != "" && part {
+					convertedStr, _ := strconv.Atoi(current)
+					fmt.Println(convertedStr)
+					sum = sum + convertedStr
+
 				}
-				if gameStruct.green < m["green"] {
-					gameStruct.green = m["green"]
-				}
+				current = ""
+				part = false
 			}
 		}
-		Games = append(Games, gameStruct)
-	}
+		if current != "" && part {
+			convertedStr, _ := strconv.Atoi(current)
+			fmt.Println(convertedStr)
 
-	readFile.Close()
-	for _, k := range Games {
-		fmt.Println(k)
-		gameSum = gameSum + (k.red * k.green * k.blue)
-		fmt.Printf("New gamesum: %d\n", gameSum)
+			sum = sum + convertedStr
+			current = ""
+			part = false
+		}
 	}
-	fmt.Println(gameSum)
+	fmt.Println(sum)
 }
