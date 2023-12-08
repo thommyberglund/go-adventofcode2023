@@ -18,6 +18,8 @@ type Game struct {
 func main() {
 
 	var Games = []Game{}
+	gameSum := 0
+	configuration := Game{0, 12, 13, 14}
 	filePath := os.Args[1]
 	readFile, err := os.Open(filePath)
 
@@ -31,8 +33,6 @@ func main() {
 	for fileScanner.Scan() {
 		game := strings.TrimPrefix(fileScanner.Text(), "Game ")
 		round, _ := strconv.Atoi(game[:strings.IndexByte(game, ':')])
-		fmt.Printf("Game %d\n", round)
-
 		gameStruct := Game{round, 0, 0, 0}
 		mainString := strings.Split(game, ":")[1]
 		getSets := strings.Split(mainString, ";")
@@ -57,5 +57,12 @@ func main() {
 	}
 
 	readFile.Close()
-	fmt.Println(Games)
+	for _, k := range Games {
+		fmt.Println(k)
+		if k.blue <= configuration.blue && k.green <= configuration.green && k.red <= configuration.red {
+			gameSum = gameSum + k.gameId
+			fmt.Printf("New gamesum: %d\n", gameSum)
+		}
+	}
+	fmt.Println(gameSum)
 }
