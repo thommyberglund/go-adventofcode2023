@@ -19,7 +19,6 @@ func main() {
 
 	var Games = []Game{}
 	gameSum := 0
-	configuration := Game{0, 12, 13, 14}
 	filePath := os.Args[1]
 	readFile, err := os.Open(filePath)
 
@@ -59,10 +58,8 @@ func main() {
 	readFile.Close()
 	for _, k := range Games {
 		fmt.Println(k)
-		if k.blue <= configuration.blue && k.green <= configuration.green && k.red <= configuration.red {
-			gameSum = gameSum + k.gameId
-			fmt.Printf("New gamesum: %d\n", gameSum)
-		}
+		gameSum = gameSum + (k.red * k.green * k.blue)
+		fmt.Printf("New gamesum: %d\n", gameSum)
 	}
 	fmt.Println(gameSum)
 }
