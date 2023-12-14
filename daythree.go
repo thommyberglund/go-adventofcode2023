@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	resultSlice := make([]int, 0)
+	totalPoints := 0
 	filePath := os.Args[1]
 	readFile, err := os.Open(filePath)
 
@@ -21,7 +21,8 @@ func main() {
 	fileScanner.Split(bufio.ScanLines)
 
 	for fileScanner.Scan() {
-
+		loopPoints := 0
+		winningNumbers := make([]int, 0)
 		trimmedString := fileScanner.Text()[strings.IndexByte(fileScanner.Text(), ':'):]
 		trimmedString = strings.TrimPrefix(trimmedString, ": ")
 		splitToSlice := strings.Split(trimmedString, "|")
@@ -30,13 +31,12 @@ func main() {
 		firstSlice := strings.Split(splitToSlice[0], " ")
 		secondSlice := strings.Split(splitToSlice[1], " ")
 
-		//fmt.Println(firstSlice)
-		//fmt.Println(secondSlice)
 		for i := 0; i < len(firstSlice); i++ {
 			{
 				if firstSlice[i] == "" {
 					continue
 				}
+
 				for j := 0; j < len(secondSlice); j++ {
 					{
 						if secondSlice[j] == "" {
@@ -44,21 +44,27 @@ func main() {
 						}
 
 						if firstSlice[i] == secondSlice[j] {
-							fmt.Printf("i: %s j: %s\n", firstSlice[i], secondSlice[j])
 							match, _ := strconv.Atoi(firstSlice[i])
 
-							resultSlice = append(resultSlice, match)
+							winningNumbers = append(winningNumbers, match)
 
 						}
 					}
-
 				}
-
 			}
 
 		}
+		for i := 0; i < len(winningNumbers); i++ {
+			if i == 0 {
+				loopPoints = loopPoints + 1
+				continue
+			}
+			loopPoints = loopPoints * 2
+		}
+		totalPoints = totalPoints + loopPoints
+		loopPoints = 0
 
 	}
 	readFile.Close()
-	fmt.Println(resultSlice)
+	fmt.Println(totalPoints)
 }
